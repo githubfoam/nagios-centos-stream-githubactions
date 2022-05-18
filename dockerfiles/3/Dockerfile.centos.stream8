@@ -1,0 +1,58 @@
+#https://quay.io/repository/centos/centos?tag=stream8&tab=tags
+FROM quay.io/centos/centos:stream8
+
+LABEL org.opencontainers.image.authors="githubfoam"
+
+ENV NAGIOS_USER nagios
+ENV NAGIOS_GROUP nagios  
+ENV NAGIOS_WEB_USER nagiosadmin
+ENV NAGIOS_WEB_PASS adminpass 
+ENV NAGIOS_HOME "/usr/local/nagios" 
+
+# verify centos stream8 
+RUN echo "================os-release=======================" && \
+    echo "=================================================" && \
+    cat /etc/os-release && \
+    echo "=================================================" && \
+    echo "================os-release======================="
+
+RUN yum update -yq && \
+    yum clean all && \
+    yum autoremove -yq && \
+    rm -rf /var/cache/*/*
+
+RUN yum update -yq && \
+    yum clean all && \
+    yum autoremove -yq && \
+    rm -rf /var/cache/*/* && \ 
+    # ---- make sure NAGIOS_HOME exists
+    mkdir -p ${NAGIOS_HOME}  && \
+    #mkdir -p /usr/local/nagios  && \
+    # ---- ensure user existence before provision
+    groupadd ${NAGIOS_GROUP}  && \
+    useradd --system -d ${NAGIOS_HOME} -g ${NAGIOS_GROUP} ${NAGIOS_USER} 
+
+# RUN echo "============================Setup Pre-requsites==============" && \
+#     # Set SELinux in permissive mode
+#     #current mode of SELinux
+#     yum install policycoreutils -y && \ 
+#     sestatus  && \ 
+#     #current mode of SELinux
+#     getenforce  && \
+#     # sed: can't read /etc/selinux/config: No such file or directory
+#     sed -i 's/SELINUX=.*/SELINUX=permissive/g' /etc/selinux/config && \
+#     setenforce 0 && \
+#     #current mode of SELinux
+#     sestatus  && \
+#     #current mode of SELinux
+#     getenforce 
+
+RUN echo "============================Install dependencies============================================================="  && \
+    dnf update -y && \
+    dnf install -y @php && \
+    dnf install -y @perl @httpd wget unzip glibc automake glibc-common gettext autoconf php php-cli gcc gd gd-devel net-snmp openssl-devel unzip net-snmp postfix net-snmp-utils && \
+    dnf groupinstall -y "Development Tools"
+    # systemctl enable --now httpd php-fpm
+    # systemctl enable --now httpd php-fpm && \
+    # systemctl status php-fpm && \
+    # systemctl status httpd
