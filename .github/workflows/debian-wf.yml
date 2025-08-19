@@ -1,4 +1,4 @@
-name: "centos stream docker nagios CI workflow"
+name: "debian bookworm docker nagios core CI workflow"
 
 
 on:
