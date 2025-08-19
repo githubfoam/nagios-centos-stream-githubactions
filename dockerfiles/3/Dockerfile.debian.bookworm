@@ -24,28 +24,71 @@ ENV NCPA_BRANCH=v3.1.3
 ENV NSCA_BRANCH=nsca-2.10.2
 ENV NAGIOSTV_VERSION=0.9.2
 
+# install dependencies
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
+    echo "postfix postfix/main_mailer_type string 'Internet Site'" | debconf-set-selections && \
+    echo "postfix postfix/mynetworks string '127.0.0.0/8'" | debconf-set-selections && \
+    echo "postfix postfix/mailname string ${NAGIOS_FQDN}" | debconf-set-selections && \
+    apt-get install -y \
         apache2 \
         apache2-utils \
+        autoconf \
+        automake \
+        bc \
+        bsd-mailx \
         build-essential \
-        ca-certificates \
-        curl \
-        gcc \
-        gnupg2 \
+        dnsutils \
+        fping \
+        gettext \
+        git \
+        gperf \
+        iputils-ping \
+        jq \
         libapache2-mod-php \
+        libcache-memcached-perl \
+        libcgi-pm-perl \
+        libcrypt-des-perl \
+        libcrypt-rijndael-perl \
+        libcrypt-x509-perl \
+        libdbd-mysql-perl \
+        libdbd-pg-perl \
+        libdbi-dev \
+        libdbi-perl \
+        libdigest-hmac-perl \
+        libfreeradius-dev \
         libgd-dev \
-        libmcrypt-dev \
+        libgd-perl \
+        libjson-perl \
+        libldap2-dev \
+        monitoring-plugins \
+        libmariadb-dev \
+        libnagios-object-perl \
+        libnet-snmp-perl \
+        libnet-tftp-perl \
+        libnet-xmpp-perl \
+        libpq-dev \
+        libradsec-dev \
+        libredis-perl \
+        rrdtool  \
+        librrds-perl \
         libssl-dev \
-        make \
-        mariadb-client \
-        mariadb-server \
-        nagios-nrpe-plugin \
-        openssl \
+        libtext-glob-perl \
+        libwww-perl \
+        m4 \
+        netcat-traditional \
+        parallel \
         php-cli \
-        php-curl \
         php-gd \
-        php-mbstring \
-        php-mysql \
-        php-xmlrpc && \
-    rm -rf /var/lib/apt/lists/* 
+        postfix \
+        python3 \
+        python3-venv \
+        python3-pip \
+        rsync \
+        rsyslog \
+        runit \
+        smbclient \
+        snmp \
+        snmpd \
+        unzip \
+        wget \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
