@@ -106,3 +106,17 @@ RUN cd /tmp && \
     cd qstat && ./autogen.sh && ./configure && make && make install && make clean && \
     cd /tmp && rm -rf qstat
     
+# Install Nagios Core
+RUN cd /tmp && \
+    git clone https://github.com/NagiosEnterprises/nagioscore.git -b $NAGIOS_BRANCH && \
+    cd nagioscore && \
+    ./configure \
+        --prefix=${NAGIOS_HOME} \
+        --exec-prefix=${NAGIOS_HOME} \
+        --enable-event-broker \
+        --with-command-user=${NAGIOS_CMDUSER} \
+        --with-command-group=${NAGIOS_CMDGROUP} \
+        --with-nagios-user=${NAGIOS_USER} \
+        --with-nagios-group=${NAGIOS_GROUP} && \
+    make all && make install && make install-config && make install-commandmode && make install-webconf && make clean && \
+    cd /tmp && rm -rf nagioscore
