@@ -133,4 +133,36 @@ RUN cd /tmp && \
     ln -sf ${NAGIOS_HOME}/libexec/utils.pm /usr/lib/nagios/plugins && \
     chown root:root ${NAGIOS_HOME}/libexec/check_icmp && chmod u+s ${NAGIOS_HOME}/libexec/check_icmp && \
     cd /tmp && rm -rf nagios-plugins
-    
+
+    # Install NCPA
+RUN wget -O ${NAGIOS_HOME}/libexec/check_ncpa.py https://raw.githubusercontent.com/NagiosEnterprises/ncpa/${NCPA_BRANCH}/client/check_ncpa.py && \
+    chmod +x ${NAGIOS_HOME}/libexec/check_ncpa.py
+
+
+# Install NRPE
+RUN cd /tmp && \
+    git clone https://github.com/NagiosEnterprises/nrpe.git -b $NRPE_BRANCH && \
+    cd nrpe && \
+    ./configure --with-ssl=/usr/bin/openssl --with-ssl-lib=/usr/lib/x86_64-linux-gnu && \
+    make check_nrpe && cp src/check_nrpe ${NAGIOS_HOME}/libexec/ && make clean && \
+    cd /tmp && rm -rf nrpe
+
+# Install NSCA
+RUN cd /tmp && \
+    git clone https://github.com/NagiosEnterprises/nsca.git && \
+    cd nsca && git checkout $NSCA_BRANCH && \
+    ./configure --prefix=${NAGIOS_HOME} --with-nsca-user=${NAGIOS_USER} --with-nsca-grp=${NAGIOS_GROUP} && \
+    make all && cp src/nsca ${NAGIOS_HOME}/bin/ && cp src/send_nsca ${NAGIOS_HOME}/bin/ && \
+    cp sample-config/nsca.cfg ${NAGIOS_HOME}/etc/ && cp sample-config/send_nsca.cfg ${NAGIOS_HOME}/etc/ && \
+    sed -i 's/^#server_address.*/server_address=0.0.0.0/' ${NAGIOS_HOME}/etc/nsca.cfg && \
+    cd /tmp && rm -rf nsca
+
+# Install NagiosGraph
+RUN cd /tmp && \
+    git clone https://git.code.sf.net/p/nagiosgraph/git nagiosgraph && \
+    cd nagiosgraph && \
+    ./install.pl --install --prefix /opt/nagiosgraph --nagios-user ${NAGIOS_USER} --www-user ${NAGIOS_USER} \
+        --nagios-perfdata-file ${NAGIOS_HOME}/var/perfdata.log --nagios-cgi-url /cgi-bin && \
+    cp share/nagiosgraph.ssi ${NAGIOS_HOME}/share/ssi/common-header.ssi && \
+    cd /tmp && rm -rf nagiosgraph
+   
